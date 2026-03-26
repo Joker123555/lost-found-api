@@ -1,0 +1,10 @@
+/target/
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+.DS_Store
+
+# IDE（若团队统一用同一套可改为提交 .idea）
+.idea/

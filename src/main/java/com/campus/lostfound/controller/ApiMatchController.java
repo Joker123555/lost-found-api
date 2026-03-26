@@ -23,6 +23,11 @@ public class ApiMatchController {
         return ApiResult.ok(matchQueryService.myMatches());
     }
 
+    @GetMapping("/meta")
+    public ApiResult<Map<String, Object>> meta() {
+        return ApiResult.ok(matchQueryService.meta());
+    }
+
     @GetMapping("/{id}")
     public ApiResult<Map<String, Object>> detail(@PathVariable long id) {
         return ApiResult.ok(matchQueryService.matchDetail(id));

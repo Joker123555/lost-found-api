@@ -1,14 +1,17 @@
 package com.campus.lostfound.service;
 
+import com.campus.lostfound.common.ItemStatus;
 import com.campus.lostfound.entity.Item;
 import com.campus.lostfound.entity.ItemImage;
 import com.campus.lostfound.entity.ItemMatch;
+import com.campus.lostfound.entity.SystemConfig;
 import com.campus.lostfound.entity.User;
 import com.campus.lostfound.repository.*;
 import com.campus.lostfound.security.UserContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -20,11 +23,33 @@ public class MatchQueryService {
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
     private final UserRepository userRepository;
+    private final SystemConfigRepository systemConfigRepository;
+    private final CategoryRepository categoryRepository;
+
+    public Map<String, Object> meta() {
+        Long uid = UserContext.getUserId();
+        long minePublished =
+                itemRepository.countByUserIdAndIsDeletedAndStatus(uid, 0, ItemStatus.PUBLISHED);
+        BigDecimal threshold =
+                new BigDecimal(
+                        systemConfigRepository
+                                .findById("match.score.threshold")
+                                .map(SystemConfig::getConfigValue)
+                                .orElse("60"));
+        return Map.of("minePublishedCount", minePublished, "threshold", threshold);
+    }
 
     public List<Map<String, Object>> myMatches() {
         Long uid = UserContext.getUserId();
-        List<Item> mine = itemRepository.findByUserFiltered(uid, null, null,
-                org.springframework.data.domain.PageRequest.of(0, 500)).getContent();
+        // 仅使用已上架的数据做匹配列表（前置条件：至少发布一条寻物/招领）
+        List<Item> mine =
+                itemRepository
+                        .findByUserFiltered(
+                                uid,
+                                null,
+                                ItemStatus.PUBLISHED,
+                                org.springframework.data.domain.PageRequest.of(0, 500))
+                        .getContent();
         Set<Long> ids = mine.stream().map(Item::getId).collect(Collectors.toSet());
         if (ids.isEmpty()) return List.of();
         List<ItemMatch> all = itemMatchRepository.findByItemIds(new ArrayList<>(ids));
@@ -79,10 +104,13 @@ public class MatchQueryService {
     private Map<String, Object> toBrief(Item it) {
         List<ItemImage> imgs = itemImageRepository.findByItemIdOrderBySortOrderAsc(it.getId());
         String thumb = imgs.isEmpty() ? null : imgs.get(0).getImageUrl();
+        String categoryName = categoryRepository.findById(it.getCategoryId()).map(c -> c.getName()).orElse("");
         return Map.of(
                 "id", it.getId(),
                 "title", it.getTitle(),
                 "type", it.getType(),
+                "categoryId", it.getCategoryId(),
+                "categoryName", categoryName,
                 "location", it.getLocation(),
                 "happenedAt", it.getHappenedAt(),
                 "thumb", thumb == null ? "" : thumb
