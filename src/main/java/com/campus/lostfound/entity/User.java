@@ -32,10 +32,10 @@ public class User {
     @JsonIgnore
     private String password;
 
-    @Column(nullable = false, length = 32)
+    @Column(nullable = false, length = 64)
     private String nickname;
 
-    @Column(name = "avatar_url", length = 255)
+    @Column(name = "avatar_url", length = 512)
     private String avatarUrl;
 
     @Column(nullable = false)

@@ -36,8 +36,18 @@ public class UserProfileService {
     @Transactional
     public void updateProfile(String nickname, String avatarUrl) {
         User u = userRepository.findById(UserContext.getUserId()).orElseThrow();
-        if (nickname != null && !nickname.isBlank()) u.setNickname(nickname.trim());
-        if (avatarUrl != null) u.setAvatarUrl(avatarUrl);
+        if (nickname != null && !nickname.isBlank()) {
+            String n = nickname.trim();
+            if (n.length() > 64) n = n.substring(0, 64);
+            u.setNickname(n);
+        }
+        if (avatarUrl != null && !avatarUrl.isBlank()) {
+            String a = avatarUrl.trim();
+            if (a.length() > 512) {
+                throw new BusinessException("头像地址过长，请重新选择头像上传");
+            }
+            u.setAvatarUrl(a);
+        }
         userRepository.save(u);
     }
 
