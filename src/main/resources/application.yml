@@ -9,7 +9,7 @@ spring:
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/campus_lost_found?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
     username: root
-    password: 123456
+    password: *****
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -33,8 +33,8 @@ app:
   upload-dir: D:/java/yg/uploads
   public-base-url: http://192.168.3.183:8080
   wechat:
-    app-id: ${WECHAT_APP_ID:wx077db7cf021664ac}
-    app-secret: ${WECHAT_APP_SECRET:cd36453c11ba307137392e705071009d}
+    app-id: ${WECHAT_APP_ID:*********}
+    app-secret: ${WECHAT_APP_SECRET:**********************}
   # 蹇呴』鍐欐垚 YAML 鍒楄〃锛屼笉鑳藉啓鎴愪竴琛岄€楀彿鍒嗛殧瀛楃涓诧紝鍚﹀垯鏃犳硶姝ｇ‘缁戝畾涓?List<String>
   cors:
     allowed-origins:
